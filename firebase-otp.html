@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Firebase Phone Auth</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+</head>
+
+<body>
+  <div id="recaptcha-container"></div>
+  <div>
+    <input type="text" id="phone-number" placeholder="Phone number">
+    <button id="send-otp">Send OTP</button>
+  </div>
+  <div>
+    <input type="text" id="otp" placeholder="Verification code">
+    <button id="verify-otp">Verify OTP</button>
+  </div>
+  <script type="text/javascript">
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      // Add config
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    document.getElementById('send-otp').addEventListener('click', function () {
+      const phoneNumber = document.getElementById('phone-number').value;
+      const appVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        'size': 'invisible',
+        'callback': function (response) {
+          // reCAPTCHA solved - will proceed with submit function
+        }
+      });
+
+      firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
+        .then(function (confirmationResult) {
+          window.confirmationResult = confirmationResult;
+          alert('OTP sent');
+        }).catch(function (error) {
+          console.error('Error during signInWithPhoneNumber', error);
+          alert('Error sending OTP. Check console for details.');
+        });
+    });
+
+
+    document.getElementById('verify-otp').addEventListener('click', function () {
+      const code = document.getElementById('otp').value;
+
+      window.confirmationResult.confirm(code).then(function (result) {
+        const user = result.user;
+        console.log('User signed in successfully:', user);
+        alert('User signed in successfully');
+      }).catch(function (error) {
+        console.error('Error during signInWithPhoneNumber', error);
+        alert('Error verifying OTP. Check console for details.');
+      });
+    });
+
+
+
+  </script>
+</body>
+
+</html>
